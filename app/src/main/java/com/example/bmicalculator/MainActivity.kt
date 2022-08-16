@@ -11,14 +11,18 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 
 class MainActivity : AppCompatActivity() {
+
     private lateinit var weightText:EditText
     private lateinit var heightText: EditText
     private lateinit var sf: SharedPreferences
     private lateinit var editor: SharedPreferences.Editor
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        val viewModel = ViewModelProvider(this).get(BMIViewModel::class.java)
 
         weightText = findViewById(R.id.etWeight )
         heightText = findViewById(R.id.etHeight)
@@ -30,10 +34,11 @@ class MainActivity : AppCompatActivity() {
             val weight = weightText.text.toString()
             val height = heightText.text.toString()
             if (validateInput(weight,height)) {
-                val bmi = weight.toFloat() / ((height.toFloat() / 100) * (height.toFloat() / 100))
-                // get results in 2 d.p
-                val bmi2digits = String.format("%.2f", bmi).toFloat()
-                displayResult(bmi2digits)
+                viewModel.calculateBmi(weight,height)
+                viewModel.bmi2digits.observe(this,{bmi2digits ->
+                    bmi2digits?.let { it1 -> displayResult(it1) }
+                })
+
             }
         }
     }
